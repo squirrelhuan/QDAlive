@@ -1,0 +1,14 @@
+include ':app', ':quickdeveloplibrary',':qdlogger_library',':quicksticker_lib',':quicksticker-annotations',':quicksticker-compiler',':qdRouter_library',':qdzxinglibrary'
+rootProject.name = "QDAlive"
+
+
+project (':qdzxinglibrary').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QdZxing\\qdzxinglibrary')
+
+project (':qdlogger_library').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QDLogger\\qdlogger_library')
+project (':quickdeveloplibrary').projectDir = new File('D:\\Android\\work\\QuickDevelop\\quickdeveloplibrary')
+
+
+project (':quicksticker-compiler').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QuickSticker\\quicksticker-compiler')
+project (':quicksticker_lib').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QuickSticker\\quicksticker_lib')
+project (':quicksticker-annotations').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QuickSticker\\quicksticker-annotations')
+project (':qdRouter_library').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QuickRouter\\qdRouter_library')

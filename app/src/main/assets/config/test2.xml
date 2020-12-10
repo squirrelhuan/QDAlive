@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns="poetry"><!--根元素-->
+    <appconfig name="errorReportActivity" value="cn.demomaster.huan.quickdeveloplibrary.ui.error.ErrorCrashActivity"></appconfig>
+    <appconfig name="version" value="1"></appconfig>
+</root>
