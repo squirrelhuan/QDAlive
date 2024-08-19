@@ -2,21 +2,21 @@ package cn.demomaster.qdalive;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.view.View;
 
 import cn.demomaster.huan.quickdeveloplibrary.base.dialog.DialogActivityHelper;
 import cn.demomaster.huan.quickdeveloplibrary.base.dialog.QdDialogActivity;
-import cn.demomaster.huan.quickdeveloplibrary.helper.QDActivityManager;
 import cn.demomaster.huan.quickdeveloplibrary.helper.QdThreadHelper;
 import cn.demomaster.huan.quickdeveloplibrary.widget.dialog.OnClickActionListener;
 import cn.demomaster.huan.quickdeveloplibrary.widget.dialog.QDDialog;
 import cn.demomaster.qdalive.activity.DialogActivity;
 import cn.demomaster.qdalive.media.MediaProjectionUtil;
+import cn.demomaster.qdrouter_library.manager.QDActivityManager;
 import core.MqttConnectionListener;
 import core.model.Msg;
 
 public abstract class MqttActionListener implements MqttConnectionListener {
     Activity mActivity;
-
     public MqttActionListener() {
 
     }
@@ -58,7 +58,7 @@ public abstract class MqttActionListener implements MqttConnectionListener {
                                 .setBackgroundRadius(20)
                                 .addAction("确定", new OnClickActionListener() {
                                     @Override
-                                    public void onClick(Dialog dialog, Object tag) {
+                                    public void onClick(Dialog dialog, View view, Object tag) {
                                         dialog.dismiss();
                                         MyService.mqttClient.response(msg.getClientId(), null, msg.getMsgId(), "yes", (byte) msg.getType(), null);
 
@@ -68,7 +68,7 @@ public abstract class MqttActionListener implements MqttConnectionListener {
                                 })
                                 .addAction("拒绝", new OnClickActionListener() {
                                     @Override
-                                    public void onClick(Dialog dialog, Object tag) {
+                                    public void onClick(Dialog dialog, View view, Object tag) {
                                         dialog.dismiss();
                                         MyService.mqttClient.response(msg.getClientId(), null, msg.getMsgId(), "no", (byte) msg.getType(), null);
                                     }

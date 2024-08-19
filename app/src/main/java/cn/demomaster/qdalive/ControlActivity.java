@@ -1,5 +1,6 @@
 package cn.demomaster.qdalive;
 
+import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
@@ -26,8 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.demomaster.huan.quickdeveloplibrary.base.activity.QDActivity;
-import cn.demomaster.huan.quickdeveloplibrary.base.tool.actionbar.ACTIONBAR_TYPE;
+import cn.demomaster.huan.quickdeveloplibrary.helper.QDSharedPreferences;
 import cn.demomaster.huan.quickdeveloplibrary.helper.QdThreadHelper;
+import cn.demomaster.huan.quickdeveloplibrary.widget.dialog.QDSheetDialog;
 import cn.demomaster.qdalive.model.ActionModel;
 import cn.demomaster.qdalive.model.ActionTypeEmun;
 import cn.demomaster.qdalive.model.TouchPoint;
@@ -43,11 +45,11 @@ import core.mqtt.OnMessageReceiveListener;
 
 public class ControlActivity extends QDActivity {
 
-
     private final static String MIME_TYPE = "video/avc";
-    private final static int VIDEO_WIDTH = 720;
-    private final static int VIDEO_HEIGHT = 1280;
-
+    //private final static int VIDEO_WIDTH = 720;
+    //private final static int VIDEO_HEIGHT = 1280;
+    private final static int VIDEO_WIDTH = 1280;
+    private final static int VIDEO_HEIGHT = 720;
     MySurfaceView mSurfaceView;
 
     @BindView(R.id.tv_lable)
@@ -58,6 +60,8 @@ public class ControlActivity extends QDActivity {
     ImageView iv_home;
     @BindView(R.id.iv_task)
     ImageView iv_task;
+    @BindView(R.id.btn_rotation)
+    Button btn_rotation;
 
     private MediaCodec mCodec;
 
@@ -71,7 +75,7 @@ public class ControlActivity extends QDActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contol);
         QuickStickerBinder.getInstance().bind(this);
-        getActionBarTool().setActionBarType(ACTIONBAR_TYPE.NO_ACTION_BAR_NO_STATUS);
+        //getActionBarTool().setActionBarType(ACTIONBAR_TYPE.NO_ACTION_BAR_NO_STATUS);
 
         Bundle bundle = getIntent().getExtras();
         if(bundle!=null){
@@ -80,6 +84,13 @@ public class ControlActivity extends QDActivity {
                 tv_lable.setText("远程设备："+clientID+"");
             }
         }
+
+        btn_rotation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRotationDialog();
+            }
+        });
 
         iv_back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,9 +113,9 @@ public class ControlActivity extends QDActivity {
 
         mSurfaceView = (MySurfaceView) findViewById(R.id.surfaceView1);
         DisplayMetrics dm = getResources().getDisplayMetrics();
-        mSurfaceView.getHolder().setFixedSize(dm.widthPixels, dm.heightPixels);
+        //mSurfaceView.getHolder().setFixedSize(dm.widthPixels, dm.heightPixels);
+        mSurfaceView.getHolder().setFixedSize(mSurfaceView.getMeasuredWidth(), mSurfaceView.getMeasuredHeight());
         mSurfaceView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-
         mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(@NonNull SurfaceHolder holder) {
@@ -288,6 +299,22 @@ public class ControlActivity extends QDActivity {
 
         MyService.setListener(mqttActionListener);
     }
+    String[] rotations = new String[]{"0","90","180","270"};
+    private void showRotationDialog() {
+        new QDSheetDialog.MenuBuilder(mContext).setData(rotations).setOnDialogActionListener(new QDSheetDialog.OnDialogActionListener() {
+            @Override
+            public void onItemClick(QDSheetDialog dialog, int position, List<String> data) {
+                dialog.dismiss();
+                mSurfaceView.setRotation(Integer.valueOf(data.get(position)));
+                Matrix matrix = new Matrix();
+                matrix.setRotate(Integer.valueOf(data.get(position)));
+                mSurfaceView.setMatrix(matrix);
+                //MyService.serverIp = data.get(position);
+                btn_rotation.setText("旋转："+data.get(position));
+            }
+        }).create().show();
+    }
+
     boolean initedDecoder;
     public void initDecoder() {
         try {
@@ -349,8 +376,6 @@ public class ControlActivity extends QDActivity {
         }
         return true;
     }
-
-
 
     MqttActionListener mqttActionListener;
 

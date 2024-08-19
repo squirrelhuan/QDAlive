@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.Map;
 
 import cn.demomaster.huan.quickdeveloplibrary.base.activity.QDActivity;
-import cn.demomaster.huan.quickdeveloplibrary.helper.PermissionManager;
 import cn.demomaster.huan.quickdeveloplibrary.helper.QDSharedPreferences;
 import cn.demomaster.huan.quickdeveloplibrary.helper.QdThreadHelper;
 import cn.demomaster.huan.quickdeveloplibrary.helper.toast.QdToast;
+import cn.demomaster.huan.quickdeveloplibrary.network.NetworkHelper;
 import cn.demomaster.huan.quickdeveloplibrary.service.AccessibilityHelper;
 import cn.demomaster.huan.quickdeveloplibrary.service.QDAccessibilityService;
 import cn.demomaster.huan.quickdeveloplibrary.util.QDAndroidDeviceUtil;
@@ -46,6 +46,7 @@ import cn.demomaster.qdalive.media.MediaProjectionUtil;
 import cn.demomaster.qdalive.util.GestureHelper;
 import cn.demomaster.qdalive.view.ControlPanelView;
 import cn.demomaster.qdlogger_library.QDLogger;
+import cn.demomaster.quickpermission_library.PermissionHelper;
 import cn.demomaster.quicksticker_annotations.BindView;
 import cn.demomaster.quicksticker_annotations.QuickStickerBinder;
 import core.MqttException;
@@ -74,6 +75,8 @@ public class MainActivity extends QDActivity {
     ControlPanelView iv_screen;
     MyBroadcastReceiver myBroadcastReceiver;
 
+    @BindView(R.id.tv_local_ip)
+    TextView tv_local_ip;
     @BindView(R.id.tv_ip)
     TextView tv_ip;
 
@@ -83,8 +86,8 @@ public class MainActivity extends QDActivity {
         setContentView(R.layout.activity_main);
         QuickStickerBinder.getInstance().bind(this);
         clientID = QDAndroidDeviceUtil.getUniqueID(this);
-
-        if(mqttActionListener==null){
+        tv_local_ip.setText(NetworkHelper.getLocalIpAddress(mContext));
+        if (mqttActionListener == null) {
             mqttActionListener = new MqttActionListener(mContext) {
                 @Override
                 public void onMqttConnect() {
@@ -218,7 +221,7 @@ public class MainActivity extends QDActivity {
             public void onClick(View v) {
                /* CaptureUtil.getInstance().stopVirtual();
                 CaptureUtil.getInstance().release();*/
-               MyService.setTargetDevice(null);
+                MyService.setTargetDevice(null);
             }
         });
         iv_screen = findViewById(R.id.iv_screen);
@@ -265,7 +268,7 @@ public class MainActivity extends QDActivity {
             @Override
             public void onClick(View view) {
                 //确保无障碍服务已经开启
-                if (!AccessibilityHelper.isEnable(MainActivity.this,QDAccessibilityService.class)) {
+                if (!AccessibilityHelper.isEnable(MainActivity.this, QDAccessibilityService.class)) {
                     QDAccessibilityService.startSettintActivity(MainActivity.this);
                 }
             }
@@ -284,7 +287,7 @@ public class MainActivity extends QDActivity {
                 //message.obj = mContext;
                 if (MyService.handler != null) {
                     MyService.handler.sendMessage(message);
-                }else {
+                } else {
 
                 }
             }
@@ -327,17 +330,7 @@ public class MainActivity extends QDActivity {
         });
 
 //, Manifest.permission.SYSTEM_ALERT_WINDOW
-        PermissionManager.getInstance().chekPermission(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO}, new PermissionManager.PermissionListener() {
-            @Override
-            public void onPassed() {
-
-            }
-
-            @Override
-            public void onRefused() {
-
-            }
-        });
+        PermissionHelper.requestPermission(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO}, null);
         requestPermissions();
 
         //CaptureUtil.getInstance().init(this);
@@ -405,7 +398,7 @@ public class MainActivity extends QDActivity {
      * 选择要投屏的设备
      */
     private void selectDevice() {
-        if(MyService.devices==null){
+        if (MyService.devices == null) {
             return;
         }
         new QDSheetDialog.MenuBuilder(mContext).setData(MyService.devices).setOnDialogActionListener(new QDSheetDialog.OnDialogActionListener() {
@@ -422,53 +415,58 @@ public class MainActivity extends QDActivity {
      * 选择要远程控制的设备
      */
     private void showDeviceList() {
-        if(MyService.devices==null){
+        if (MyService.devices == null) {
             return;
         }
         new QDSheetDialog.MenuBuilder(mContext).setData(MyService.devices).setOnDialogActionListener(new QDSheetDialog.OnDialogActionListener() {
             @Override
             public void onItemClick(QDSheetDialog dialog, int position, List<String> data) {
-                 dialog.dismiss();
+                dialog.dismiss();
                 //请求控制对方
-                    ActionModel actionModel = new ActionModel();
-                    actionModel.setActionType(ActionTypeEmun.control.value());
-                    String str  =JSON.toJSONString(actionModel);
-                    MyService. mqttClient.request(data.get(position), str.getBytes(), new OnMessageReceiveListener() {
-                        @Override
-                        public void onReceived(byte[] bytes) {
-                            String r = new String(bytes);
-                            if(r.equals("yes")){
-                                QdThreadHelper.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Bundle bundle = new Bundle();
-                                        bundle.putString("clientID",data.get(position));
-                                        startActivity(ControlActivity.class,bundle);
-                                    }
-                                });
-                            }else {
-                                QdToast.show("对方已拒绝");
-                            }
+                ActionModel actionModel = new ActionModel();
+                actionModel.setActionType(ActionTypeEmun.control.value());
+                String str = JSON.toJSONString(actionModel);
+                MyService.mqttClient.request(data.get(position), str.getBytes(), new OnMessageReceiveListener() {
+                    @Override
+                    public void onReceived(byte[] bytes) {
+                        String r = new String(bytes);
+                        if (r.equals("yes")) {
+                            QdThreadHelper.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString("clientID", data.get(position));
+                                    startActivity(ControlActivity.class, bundle);
+                                }
+                            });
+                        } else {
+                            QdToast.show("对方已拒绝");
                         }
-                    });
+                    }
+                });
             }
         }).create().show();
     }
 
-    String[] ips = new String[]{"192.168.199.107", "192.168.0.106"};
+    String[] ips = new String[]{"192.168.96.136","172.16.17.122", "172.16.17.144", "172.16.17.113", "172.16.11.254", "192.168.199.107", "192.168.0.106", "172.16.15.152"};
+
     /**
      * 显示serverIp选择框
      */
     private void showIpDialog() {
-        new QDSheetDialog.MenuBuilder(mContext).setData(ips).setOnDialogActionListener(new QDSheetDialog.OnDialogActionListener() {
-            @Override
-            public void onItemClick(QDSheetDialog dialog, int position, List<String> data) {
-                dialog.dismiss();
-                QDSharedPreferences.getInstance().putString("ServerIp", data.get(position));
-                MyService.serverIp = data.get(position);
-                tv_ip.setText(MyService.serverIp);
-            }
-        }).create().show();
+        new QDSheetDialog.MenuBuilder(mContext)
+                .setData(ips)
+                .setOnDialogActionListener(new QDSheetDialog.OnDialogActionListener() {
+                    @Override
+                    public void onItemClick(QDSheetDialog dialog, int position, List<String> data) {
+                        dialog.dismiss();
+                        QDSharedPreferences.getInstance().putString("ServerIp", data.get(position));
+                        MyService.serverIp = data.get(position);
+                        tv_ip.setText(MyService.serverIp);
+                    }
+                })
+                .create()
+                .show();
     }
 
     Handler handler = new Handler();
@@ -505,6 +503,7 @@ public class MainActivity extends QDActivity {
 
     Map<String, FileModel> bitmapStrMap = new HashMap<>();
     MqttActionListener mqttActionListener;
+
     private void refreshImage(FileModel fileModel) {
         QDLogger.i("刷新图像");
         try {
@@ -550,7 +549,7 @@ public class MainActivity extends QDActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        QDLogger.e("onDestroy:"+this.getClass().getName());
+        QDLogger.e("onDestroy:" + this.getClass().getName());
         QuickStickerBinder.getInstance().unBind(this);
         unregisterReceiver(myBroadcastReceiver);
         CaptureUtil.getInstance().release();

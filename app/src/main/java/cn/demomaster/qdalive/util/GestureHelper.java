@@ -25,6 +25,7 @@ import cn.demomaster.huan.quickdeveloplibrary.util.DisplayUtil;
 import cn.demomaster.huan.quickdeveloplibrary.util.terminal.ADBHelper;
 import cn.demomaster.huan.quickdeveloplibrary.util.terminal.ProcessResult;
 import cn.demomaster.huan.quickdeveloplibrary.util.terminal.QDRuntimeHelper;
+import cn.demomaster.huan.quickdeveloplibrary.view.floatview.ServiceHelper;
 import cn.demomaster.qdalive.MyService;
 import cn.demomaster.qdalive.model.ActionModel;
 import cn.demomaster.qdalive.model.ActionTypeEmun;
@@ -39,7 +40,8 @@ import static android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_RE
 public class GestureHelper {
     static QDAccessibilityService mQDAccessibilityService;
     private static int code = 12345;
-    public static void init() {
+    public static void init(Context context) {
+
         //执行全局动作，api16以上可用
         /*performGlobalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN);//切换到分屏
         performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS);//打开快速设置，暂时不知道这个有什么用
@@ -50,8 +52,10 @@ public class GestureHelper {
         performGlobalAction(GLOBAL_ACTION_POWER_DIALOG);//打开电源键长按对话框
         performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN);//锁屏
         performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT);//截图*/
-
-        AccessibilityHelper.registerAccessibilityEventListener(code, new QDAccessibilityService.OnAccessibilityListener() {
+        if (ServiceHelper.serverIsRunning(context.getApplicationContext(), QDAccessibilityService.class.getName())) {
+            mQDAccessibilityService = QDAccessibilityService.instance;
+        }
+        /*AccessibilityHelper.registerAccessibilityEventListener(code, new QDAccessibilityService.OnAccessibilityListener() {
             @Override
             public void onServiceConnected(QDAccessibilityService qdAccessibilityService) {
                 mQDAccessibilityService = qdAccessibilityService;
@@ -66,7 +70,7 @@ public class GestureHelper {
             public void onServiceDestroy() {
                 mQDAccessibilityService = null;
             }
-        });
+        });*/
 
         handler = new Handler() {
             @Override
@@ -124,9 +128,9 @@ public class GestureHelper {
                 GestureDescription.Builder builder = new GestureDescription.Builder();
                 GestureDescription description = null;
                 try {
-               /* if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    description = builder.addStroke(new GestureDescription.StrokeDescription(path, 100L, 100L,true)).build();
-                }else {*/
+                    /* if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        description = builder.addStroke(new GestureDescription.StrokeDescription(path, 100L, 100L,true)).build();
+                    }else {*/
                     builder.addStroke(new GestureDescription.StrokeDescription(path, 0L, duration));
                     //builder.addStroke(new GestureDescription.StrokeDescription(path, 0L, duration));
                     description = builder.build();

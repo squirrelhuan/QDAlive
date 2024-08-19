@@ -1,14 +1,28 @@
-include ':app', ':quickdeveloplibrary',':qdlogger_library',':quicksticker_lib',':quicksticker-annotations',':quicksticker-compiler',':qdRouter_library',':qdzxinglibrary'
+include ':app',
+        ':quickdeveloplibrary',
+        ':qdlogger_library',
+        ':quicksticker_lib',
+        ':quicksticker-annotations',
+        ':quicksticker-compiler',
+        ':qdRouter_library',
+        ':qdzxinglibrary',
+        ":quickAudioRecorderlib",
+        ":quickdatabaselibrary",
+        ':quickpermission_library',
+        ':treeviewlibrary',
+        ':quickevent_library'
+
 rootProject.name = "QDAlive"
-
-
 project (':qdzxinglibrary').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QdZxing\\qdzxinglibrary')
-
 project (':qdlogger_library').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QDLogger\\qdlogger_library')
-project (':quickdeveloplibrary').projectDir = new File('D:\\Android\\work\\QuickDevelop\\quickdeveloplibrary')
-
+project (':quickdeveloplibrary').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QuickDevelop\\quickdeveloplibrary')
+project (':quickpermission_library').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QuickPermission\\quickpermission_library')
+project (':quickdatabaselibrary').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QuickDataBase\\quickdatabaselibrary')
+project (':treeviewlibrary').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QuickTreeView\\treeviewlibrary')
+project (':quickevent_library').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QuickEvent\\quickevent_library')
+project (':qdRouter_library').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QuickRouter\\qdRouter_library')
 
 project (':quicksticker-compiler').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QuickSticker\\quicksticker-compiler')
 project (':quicksticker_lib').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QuickSticker\\quicksticker_lib')
 project (':quicksticker-annotations').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QuickSticker\\quicksticker-annotations')
-project (':qdRouter_library').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QuickRouter\\qdRouter_library')
+project (':quickAudioRecorderlib').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QuickAudioRecorder\\quickAudioRecorderlib')

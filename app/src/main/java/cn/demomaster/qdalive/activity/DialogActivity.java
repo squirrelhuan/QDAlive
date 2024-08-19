@@ -4,9 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Build;
-import android.os.Bundle;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +19,7 @@ import cn.demomaster.huan.quickdeveloplibrary.base.dialog.QdDialogActivity;
 import cn.demomaster.huan.quickdeveloplibrary.util.DisplayUtil;
 import cn.demomaster.huan.quickdeveloplibrary.view.drawable.DividerGravity;
 import cn.demomaster.huan.quickdeveloplibrary.view.drawable.QDividerDrawable;
+import cn.demomaster.huan.quickdeveloplibrary.widget.base.Gravity;
 import cn.demomaster.huan.quickdeveloplibrary.widget.dialog.ActionButton;
 import cn.demomaster.huan.quickdeveloplibrary.widget.dialog.QDDialog;
 
@@ -34,10 +33,10 @@ public class DialogActivity extends QdDialogActivity {
     private QDDialog.ShowType showType = QDDialog.ShowType.normal;
     private QDDialog.DataType dataType = QDDialog.DataType.text;
     private int width = ViewGroup.LayoutParams.MATCH_PARENT;
-    private int gravity_header = Gravity.LEFT;
-    private int gravity_body = Gravity.LEFT;
-    private int gravity_foot = Gravity.CENTER;
-    private int gravity = Gravity.CENTER;
+    private Gravity gravity_header = Gravity.LEFT;
+    private Gravity gravity_body = Gravity.LEFT;
+    private Gravity gravity_foot = Gravity.CENTER;
+    private Gravity gravity = Gravity.CENTER;
     private boolean isFullScreen = false;
     private int margin = 0;//当isFullScreen=true时生效
     private int padding = -1;
@@ -69,18 +68,15 @@ public class DialogActivity extends QdDialogActivity {
     private LinearLayout headerView;
     private LinearLayout bodyView;
     private LinearLayout footView;
-
+    QDDialog.Builder builder;
     @Override
     public void generateView(LayoutInflater layoutInflater, ViewGroup viewParent) {
-
         if(data!=null) {
-            QDDialog.Builder builder = (QDDialog.Builder) data;
-            this.title = builder.title;
-            this.message = builder.message;
+            builder = (QDDialog.Builder) data;
+            builder.setTitle(this.title)
+            .setMessage(this.message);
             actionButtonPadding = builder.actionButtonPadding;
             this.context = builder.context;
-            title = builder.title;
-            message = builder.message;
             icon = builder.icon;
             showType = builder.showType;
             dataType = builder.dataType;
@@ -104,7 +100,7 @@ public class DialogActivity extends QdDialogActivity {
             text_size_body = builder.text_size_body;
             text_size_foot = builder.text_size_foot;
             contentView = builder.contentView;
-            contentViewLayoutID = builder.contentViewLayoutID;
+            builder.setContentView(contentViewLayoutID);
 
             backgroundColor = builder.backgroundColor;
             lineColor = builder.lineColor;
@@ -120,7 +116,7 @@ public class DialogActivity extends QdDialogActivity {
        // View view = layoutInflater.inflate(R.);
         context = this;
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams.gravity = Gravity.CENTER;
+        layoutParams.gravity = Gravity.CENTER.value();
         layoutParams.leftMargin = DisplayUtil.dip2px(this,20);
         layoutParams.topMargin = DisplayUtil.dip2px(this,20);
         layoutParams.rightMargin = DisplayUtil.dip2px(this,20);
@@ -176,7 +172,7 @@ public class DialogActivity extends QdDialogActivity {
                 break;
             case contentLayout:
                 ViewGroup.LayoutParams layoutParams2 = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                View view = LayoutInflater.from(context).inflate(contentViewLayoutID, null, false);
+                View view = LayoutInflater.from(context).inflate(builder.layoutResID, null, false);
                 contentLinearView.addView(view, layoutParams2);
                 break;
         }
@@ -184,7 +180,7 @@ public class DialogActivity extends QdDialogActivity {
             contentLinearView.addView(headerView);
             headerView.setMinimumHeight(minHeight_header);
             headerView.setBackgroundColor(color_header);
-            headerView.setGravity(gravity_header);
+            headerView.setGravity(gravity_header.value());
             headerView.setTag(gravity_header);
             addTextView(headerView, title, text_color_header, text_size_header);
         }
@@ -193,7 +189,7 @@ public class DialogActivity extends QdDialogActivity {
             bodyView.setMinimumHeight(minHeight_body);
             bodyView.setBackgroundColor(color_body);
 
-            bodyView.setGravity(gravity_body);
+            bodyView.setGravity(gravity_body.value());
             bodyView.setTag(gravity_body);
             addBodyTextView(bodyView, message, text_color_body, text_size_body);
         }
@@ -201,7 +197,7 @@ public class DialogActivity extends QdDialogActivity {
         if (footView != null) {
             contentLinearView.addView(footView);
             footView.setMinimumHeight(minHeight_foot);
-            footView.setGravity(gravity_foot);
+            footView.setGravity(gravity_foot.value());
             footView.setBackgroundColor(color_foot);
             footView.setOrientation(LinearLayout.HORIZONTAL);
             LinearLayout.LayoutParams layoutParams_button;
@@ -221,7 +217,7 @@ public class DialogActivity extends QdDialogActivity {
                 button.setTextSize(text_size_foot);
                 button.setTextColor(text_color_foot);
                 button.setPadding(actionPadding * 3, (int) (actionPadding * 2), actionPadding * 3, (int) (actionPadding * 2));
-                button.setGravity(Gravity.CENTER);
+                button.setGravity(Gravity.CENTER.value());
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     //获取selectableItemBackground中对应的attrId
                     TypedValue typedValue = new TypedValue();
@@ -275,16 +271,10 @@ public class DialogActivity extends QdDialogActivity {
             textView.setTextSize(textSize);
             //textView.setPadding(padding, padding, padding, padding);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, 1);
-            switch ((int) viewGroup.getTag()) {
-                case Gravity.LEFT:
-                    layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    break;
-                case Gravity.CENTER:
-                    layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
-                    break;
-                case Gravity.RIGHT:
-                    layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    break;
+            if((int) viewGroup.getTag()==Gravity.LEFT.value()||(int) viewGroup.getTag()==Gravity.RIGHT.value()){
+                layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            }else if((int) viewGroup.getTag()==Gravity.CENTER.value()){
+                layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
             }
             textView.setLayoutParams(layoutParams);
             //

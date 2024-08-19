@@ -1,6 +1,8 @@
 package cn.demomaster.qdalive.view;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -35,5 +37,18 @@ public class MySurfaceView extends SurfaceView {
           return gestureDetector.onTouchEvent(event);
         }
         return super.onTouchEvent(event);
+    }
+
+    Matrix matrix = new Matrix();
+
+    public void setMatrix(Matrix matrix) {
+        this.matrix = matrix;
+        postInvalidate();
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        canvas.setMatrix(matrix);
+        super.onDraw(canvas);
     }
 }

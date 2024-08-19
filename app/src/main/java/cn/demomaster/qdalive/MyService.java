@@ -32,6 +32,8 @@ import cn.demomaster.qdlogger_library.QDLogger;
 import core.MqttClient;
 import core.MqttConnectionListener;
 import core.MqttException;
+import core.MqttServer;
+import core.QDTcpServer;
 import core.model.ConnectInfo;
 import core.model.Msg;
 
@@ -69,8 +71,7 @@ public class MyService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         QDLogger.i("service onStartCommand");
-        int flags1 = Service.START_STICKY;
-        return super.onStartCommand(intent, flags1, startId);
+        return super.onStartCommand(intent, Service.START_STICKY, startId);
     }
 
     @Override
@@ -105,11 +106,16 @@ public class MyService extends Service {
             }
         };
 
+        final int port = 10101;
+        /*MqttServer mqttService = new MqttServer(6032);
+        mqttService.start();
+        QDTcpServer qdTcpServer = new QDTcpServer(port);
+        qdTcpServer.connect();*/
+
         //QdToast.show("Service onCreate");
         String id = QDAndroidDeviceUtil.getUniqueID(this);
         //String ip = "192.168.199.107";
         //ip = "192.168.0.106";
-        final int port = 10101;
         if (mqttClient == null) {
             mqttClient = new MqttClient(serverIp, port);
             ConnectInfo connectInfo = new ConnectInfo();
@@ -121,7 +127,7 @@ public class MyService extends Service {
             mqttClient.connect(serverIp, port, new MqttConnectionListener() {
                 @Override
                 public void onMqttConnect() {
-                    QdToast.show("连接成功");
+                    QdToast.showToast(getApplicationContext(),"连接成功");
                     //System.out.println("Mqtt连接成功");
                     if (mListener != null) {
                         mListener.onMqttConnect();
